@@ -1,5 +1,6 @@
 ﻿using System;
 using ZHES.Collections;
+using ZHES.Entities;
 
 namespace ZHES {
     class Program {
@@ -47,6 +48,28 @@ namespace ZHES {
                 someCollection.Next();
             }
             Console.WriteLine();
+
+            //testing ZHES
+            HMS zhes = new HMS();
+            Rate rate1 = new Rate("Number1", new Tuple<Consumable, uint>(Consumable.Gas,65), 
+                new Tuple<Consumable, uint>(Consumable.Electricity, 90), new Tuple<Consumable, uint>(Consumable.Whater, 15));
+            Rate rate2 = new Rate("Number2", new Tuple<Consumable, uint>(Consumable.Gas, 165),
+                new Tuple<Consumable, uint>(Consumable.Electricity, 190), new Tuple<Consumable, uint>(Consumable.Whater, 35));
+
+            zhes.AddLoger("Vasili", rate1);
+            zhes.AddLoger("Vana1", rate2);
+            zhes.AddLoger("Vana2", rate2);
+            zhes.AddLoger("Vana3", rate2);
+            zhes.AddLoger("Vana4", rate2);
+
+            zhes.AddConsumption("Vasili", Consumable.Gas, 43);
+            Console.WriteLine("Vasili - " + zhes.GetConsumption("Vasili"));
+            zhes.AddConsumption("Vana1", Consumable.Electricity, 143);
+            zhes.AddConsumption("Vana2", Consumable.Whater, 143);
+            zhes.AddConsumption("Vana3", Consumable.Gas, 43);
+            zhes.AddConsumption("Vasili", Consumable.Electricity, 43);
+            Console.WriteLine("Vasili - " + zhes.GetConsumption("Vasili"));
+            Console.WriteLine(zhes.GetAllConsumption());
         }
     }
 }
