@@ -1,6 +1,7 @@
 ﻿using System;
 using ZHES.Collections;
 using ZHES.Entities;
+using ZHES.Exceptions;
 
 namespace ZHES {
     class Program {
@@ -22,8 +23,14 @@ namespace ZHES {
             }
             Console.WriteLine();
 
-            someCollection.Remove(49); //testing remove
-            someCollection.Remove(5);
+
+            try {
+                someCollection.Remove(49); //testing remove
+                someCollection.Remove(5);
+            } catch (NoItemException<int> ex) {
+                Console.WriteLine(ex.Message + $" {ex.Item}");
+            }
+
             someCollection.Reset();
             for (int i = 0; i < someCollection.Count; i++) {
                 Console.Write(someCollection.Current() + " ");
@@ -49,8 +56,24 @@ namespace ZHES {
             }
             Console.WriteLine();
 
+            Journal journal = new Journal();
+
+
             //testing ZHES
             HMS zhes = new HMS();
+            zhes.NotifyLogersChange += delegate(Loger loger, bool insertion) { 
+                if (insertion) {
+                    journal.AddEvent("New Loger", loger.Name);
+                } else {
+                    journal.AddEvent("Remove Loger", loger.Name);
+                }
+            };
+            zhes.NotifyRateChange += delegate (String fullname, Rate newRate) {
+                journal.AddEvent("Change rate", $"Loger {fullname} acquired rate {newRate.Name}");
+            };
+            zhes.NotifyConsumptionChange += (String fullname, Consumable name, uint quantity) 
+                => Console.WriteLine($"{fullname} consumed {quantity} of {name}");
+
             Rate rate1 = new Rate("Number1", new Tuple<Consumable, uint>(Consumable.Gas,65), 
                 new Tuple<Consumable, uint>(Consumable.Electricity, 90), new Tuple<Consumable, uint>(Consumable.Whater, 15));
             Rate rate2 = new Rate("Number2", new Tuple<Consumable, uint>(Consumable.Gas, 165),
@@ -70,6 +93,11 @@ namespace ZHES {
             zhes.AddConsumption("Vasili", Consumable.Electricity, 43);
             Console.WriteLine("Vasili - " + zhes.GetConsumption("Vasili"));
             Console.WriteLine(zhes.GetAllConsumption());
+
+            zhes.RemoveLoger("Vana4");
+            zhes.ChangeRate("Vana3", rate1);
+
+            journal.PrintLogs();
         }
     }
 }

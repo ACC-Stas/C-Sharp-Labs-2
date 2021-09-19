@@ -8,6 +8,13 @@ using ZHES.Collections;
 namespace ZHES.Entities
 {
     class HMS {
+        public delegate void ChangedLogers(Loger loger, bool insertion);
+        public event ChangedLogers NotifyLogersChange;
+        public delegate void ChangedRates(string fullname, Rate newRate);
+        public event ChangedRates NotifyRateChange;
+        public delegate void ChangedConsumption(string fullname, Consumable name, uint quantity);
+        public event ChangedConsumption NotifyConsumptionChange;
+
         MyCustomCollection<Loger> logers = new MyCustomCollection<Loger>();
 
         public void AddLoger(string fullname, Rate rate) {
@@ -20,11 +27,13 @@ namespace ZHES.Entities
                 logers.Next();
             }
             logers.Add(loger);
+            NotifyLogersChange?.Invoke(loger, true);
         }
         public void RemoveLoger(string fullname) {
             logers.Reset();
             for (int i = 0; i < logers.Count; i++) {
                 if (logers.Current().Name == fullname) {
+                    NotifyLogersChange?.Invoke(logers.Current(), false);
                     logers.RemoveCurrent();
                     break;
                 }
@@ -33,6 +42,7 @@ namespace ZHES.Entities
         }
         public void AddConsumption(string fullName, Consumable name, uint quantity) {
             FindLoger(fullName).AddConsumption(name, quantity);
+            NotifyConsumptionChange?.Invoke(fullName, name, quantity);
         }
         public uint GetConsumption(string fullname) {
             return FindLoger(fullname).Consumption;
@@ -68,6 +78,7 @@ namespace ZHES.Entities
         }
         public void ChangeRate(string fullName, Rate rate) {
             FindLoger(fullName).Rate = rate;
+            NotifyRateChange?.Invoke(fullName, rate);
         }
     }
 }

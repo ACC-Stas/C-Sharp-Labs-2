@@ -1,5 +1,6 @@
 ﻿using System;
 using ZHES.Interfaces;
+using ZHES.Exceptions;
 
 namespace ZHES.Collections {
     public class MyCustomCollection<T> : ICustomCollection<T> {
@@ -97,21 +98,23 @@ namespace ZHES.Collections {
                 current = current.Next;
             }
 
-            if(current != null) {
-                if(current.Next != null) {
-                    current.Next.Previous = current.Previous;
-                }
-                else {
-                    tail = current.Previous;
-                }
-
-                if(current.Previous != null) {
-                    current.Previous.Next = current.Next;
-                } else {
-                    head = current.Next;
-                }
-                count--;
+            if (current == null) {
+                throw new NoItemException<T>("There is no such element", item);
             }
+
+            if(current.Next != null) {
+                current.Next.Previous = current.Previous;
+            }
+            else {
+                tail = current.Previous;
+            }
+
+            if(current.Previous != null) {
+                current.Previous.Next = current.Next;
+            } else {
+                head = current.Next;
+            }
+            count--;
         }
 
         public int Count { get { return count; } }
